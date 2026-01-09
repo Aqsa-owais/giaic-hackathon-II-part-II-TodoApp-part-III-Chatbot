@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: Backend REST API & Data Layer
+  description: API for task management with JWT authentication and user isolation
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+paths:
+  /api/{user_id}/tasks:
+    get:
+      summary: Get user's tasks
+      description: Retrieve all tasks for a specific user with authentication
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT
+    post:
+      summary: Create a new task
+      description: Create a new task for the authenticated user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT
+        '422':
+          description: Validation error - invalid input data
+
+  /api/{user_id}/tasks/{id}:
+    get:
+      summary: Get a specific task
+      description: Retrieve a specific task by ID for the authenticated user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The task ID
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT or task doesn't belong to user
+        '404':
+          description: Task not found
+    put:
+      summary: Update a task
+      description: Update a specific task for the authenticated user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The task ID
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT or task doesn't belong to user
+        '404':
+          description: Task not found
+        '422':
+          description: Validation error - invalid input data
+    delete:
+      summary: Delete a task
+      description: Delete a specific task for the authenticated user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The task ID
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Task successfully deleted
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT or task doesn't belong to user
+        '404':
+          description: Task not found
+
+  /api/{user_id}/tasks/{id}/complete:
+    patch:
+      summary: Toggle task completion status
+      description: Toggle the completion status of a specific task for the authenticated user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The user's ID (must match JWT)
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The task ID
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task completion status toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '403':
+          description: Forbidden - user_id in path doesn't match JWT or task doesn't belong to user
+        '404':
+          description: Task not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - is_completed
+        - created_at
+        - updated_at
+        - user_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        is_completed:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+          format: uuid
+
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        is_completed:
+          type: boolean

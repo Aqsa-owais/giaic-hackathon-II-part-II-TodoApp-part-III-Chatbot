@@ -1,55 +1,70 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- Sync Impact Report:
+Version change: N/A -> 1.0.0
+Added sections: All principles and sections based on the multi-user todo app specifications
+Removed sections: Template placeholders
+Templates requiring updates: N/A (this is the initial constitution)
+Follow-up TODOs: None
+-->
+# Multi-user Todo Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-First Development
+All functionality must map directly to a written spec requirement. No implementation without approved specs. This ensures deterministic behavior and clear traceability from requirements to implementation.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Security by Design
+Authentication and authorization must be enforced at every level. All API endpoints require valid JWT authentication. User ID in JWT must match resource ownership. No cross-user data access is permitted. Secrets must be managed via environment variables, never hard-coded.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Deterministic Behavior
+The system must exhibit consistent behavior: same input → same output. Backend APIs must be deterministic and idempotent where applicable. This ensures predictable system behavior and reliable testing.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Clear Separation of Concerns
+Frontend, backend, authentication, and data layers must be clearly separated. Frontend uses Next.js 16+ (App Router), backend uses Python FastAPI with SQLModel ORM, and authentication uses Better Auth with JWT. Each layer has distinct responsibilities.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### End-to-End Traceability
+Complete traceability from spec → plan → tasks → implementation is mandatory. Every change must be traceable through this chain. Claude Code generates all implementation with zero manual coding.
 
-### [PRINCIPLE_6_NAME]
+### Zero Manual Coding
+Claude Code is the only implementation agent. No manual coding at any stage. Use the Agentic Dev Stack workflow only: Spec → Plan → Tasks → Implementation. Each phase must be reviewed before moving forward.
 
+## Additional Constraints and Standards
 
-[PRINCIPLE__DESCRIPTION]
+### Architecture Standards
+- Frontend: Next.js 16+ (App Router)
+- Backend: Python FastAPI
+- ORM: SQLModel
+- Database: Neon Serverless PostgreSQL
+- Authentication: Better Auth (JWT enabled)
+- Authorization: JWT verification via shared secret
+- API communication: REST over HTTP with Bearer tokens
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Security Constraints
+- All API routes require a valid JWT
+- Requests without JWT return 401 Unauthorized
+- User ID in JWT must match resource ownership
+- JWT secret shared via environment variable (BETTER_AUTH_SECRET)
+- Token expiry enforced (e.g., 7 days)
+- No session-based auth on backend (stateless only)
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Functional Requirements
+- Implement all 5 Basic Level Todo features
+- Full CRUD support for tasks
+- Task completion toggle supported
+- Each user can access only their own tasks
+- Persistent storage required (no in-memory state)
+- Multi-user support is mandatory
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+- Spec → Plan → Tasks → Implementation workflow must be followed
+- Each phase must be reviewed before moving forward
+- Claude Code is the only implementation agent
+- All changes must be small, testable, and reference code precisely
+- Proper HTTP status codes required
+- Input validation enforced on all endpoints
+- Clear error messages for auth and validation failures
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All implementation must adhere to these principles. Deviations require explicit approval and documentation. Every API endpoint must enforce authenticated user ownership. Environment variables used for all secrets and credentials. Frontend must handle loading, error, and empty states appropriately. All functionality must map directly to written spec requirements.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-08 | **Last Amended**: 2026-01-08
