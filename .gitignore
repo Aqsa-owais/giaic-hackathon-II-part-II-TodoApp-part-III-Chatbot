@@ -81,3 +81,7 @@ frontend/.vercel/
 # Alembic
 backend/alembic/versions/*.pyc
 backend/alembic/versions/*.__pycache__
+
+tmpclaude-*
+backend/tmpclaude-*
+frontend/tmpclaude-*
