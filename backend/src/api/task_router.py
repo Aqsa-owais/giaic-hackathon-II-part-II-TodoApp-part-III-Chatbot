@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session
 from typing import List
 from ..services.task_service import (
@@ -192,7 +192,8 @@ def delete_user_task(
             detail="Task not found"
         )
 
-    return
+    # Return 204 No Content for successful deletion
+    return Response(status_code=204)
 
 
 @task_router.patch("/{user_id}/tasks/{id}/complete", response_model=TodoTaskRead)
