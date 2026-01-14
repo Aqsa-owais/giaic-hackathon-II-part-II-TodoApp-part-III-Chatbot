@@ -10,7 +10,21 @@ class TodoService {
       const response = await apiClient.get(`/api/${userId}/tasks`);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to fetch tasks');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to fetch tasks';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to fetch tasks');
+      }
     }
   }
 
@@ -22,7 +36,21 @@ class TodoService {
       const response = await apiClient.get(`/api/${userId}/tasks/${taskId}`);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to fetch task');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to fetch task';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to fetch task');
+      }
     }
   }
 
@@ -34,7 +62,21 @@ class TodoService {
       const response = await apiClient.post(`/api/${userId}/tasks`, taskData);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to create task');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to create task';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to create task');
+      }
     }
   }
 
@@ -46,7 +88,21 @@ class TodoService {
       const response = await apiClient.put(`/api/${userId}/tasks/${taskId}`, taskData);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to update task');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to update task';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to update task');
+      }
     }
   }
 
@@ -57,7 +113,21 @@ class TodoService {
     try {
       await apiClient.delete(`/api/${userId}/tasks/${taskId}`);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to delete task');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to delete task';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to delete task');
+      }
     }
   }
 
@@ -69,7 +139,21 @@ class TodoService {
       const response = await apiClient.patch(`/api/${userId}/tasks/${taskId}/complete`);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to toggle task completion');
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.detail ||
+                            error.response.data?.message ||
+                            error.response.statusText ||
+                            'Failed to toggle task completion';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('Network error: Unable to connect to server');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'Failed to toggle task completion');
+      }
     }
   }
 }
