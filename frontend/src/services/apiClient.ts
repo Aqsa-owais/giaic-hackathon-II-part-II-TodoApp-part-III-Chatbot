@@ -2,10 +2,20 @@ import axios, { AxiosResponse } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 // Create an axios instance with default config
+// For deployment, ensure NEXT_PUBLIC_API_URL is set to your backend URL
+const baseURL = typeof window !== 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000')
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: baseURL,
   timeout: 10000, // 10 seconds timeout
 });
+
+// Log the baseURL in development for debugging
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  console.log('API Client Base URL:', baseURL);
+}
 
 // Request interceptor to attach JWT token to all requests
 apiClient.interceptors.request.use(

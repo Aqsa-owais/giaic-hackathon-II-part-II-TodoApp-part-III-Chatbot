@@ -128,6 +128,40 @@ The frontend is built with Next.js and provides:
 The application follows a clear separation of concerns:
 - **Frontend**: Next.js application for user interface
 - **Backend**: FastAPI application for API endpoints and business logic
-- **Authentication**: JWT-based using Better Auth
+- **Authentication**: JWT-based using custom implementation
 - **Data Layer**: SQLModel ORM with PostgreSQL
 - **Security**: Middleware for authentication and authorization
+
+## Deployment
+
+### Important: Separate Deployments Required
+
+This application requires **separate deployments** for frontend and backend:
+
+1. **Backend API**: Must be deployed separately (e.g., Railway, Heroku, AWS, etc.)
+2. **Frontend**: Can be deployed to Vercel, Netlify, or similar platforms
+
+### Environment Variables for Deployment
+
+#### Frontend (for Vercel/Netlify deployment)
+Set the following environment variable:
+- `NEXT_PUBLIC_API_URL`: URL of your deployed backend API
+
+Example for Vercel:
+```
+NEXT_PUBLIC_API_URL=https://your-backend-domain.com
+```
+
+#### Backend
+Ensure your backend environment variables are set:
+- `DATABASE_URL`: PostgreSQL connection string
+- `BETTER_AUTH_SECRET`: JWT signing secret (at least 32 characters)
+- `FRONTEND_URL`: Your deployed frontend URL for CORS
+
+### Common Deployment Issues
+
+**"Unexpected end of JSON input" Error:**
+- Usually occurs when frontend tries to connect to `localhost` in production
+- Ensure `NEXT_PUBLIC_API_URL` points to your deployed backend, not `localhost`
+- Check that your backend is properly deployed and accessible
+- Verify CORS settings allow requests from your frontend domain
