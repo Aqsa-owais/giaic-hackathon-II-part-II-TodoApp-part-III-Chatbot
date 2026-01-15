@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
@@ -17,12 +17,7 @@ export default function TodoList({ userId }: TodoListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Load tasks when component mounts
-  useEffect(() => {
-    fetchTasks();
-  }, [userId]);
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       const userTasks = await todoService.getUserTasks(userId);
@@ -33,7 +28,12 @@ export default function TodoList({ userId }: TodoListProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  // Load tasks when component mounts
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   const handleAddTask = async (taskData: { title: string; description?: string }) => {
     try {

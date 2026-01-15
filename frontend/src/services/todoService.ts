@@ -158,4 +158,5 @@ class TodoService {
   }
 }
 
-export default new TodoService();
+const todoService = new TodoService();
+export default todoService;

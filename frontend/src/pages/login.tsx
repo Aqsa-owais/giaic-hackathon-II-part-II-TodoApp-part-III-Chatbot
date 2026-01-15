@@ -93,14 +93,14 @@ export default function Login() {
               isLoading={loading}
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Signing in...' : 'Sign in'} {/* eslint-disable-line react/no-unescaped-entities */}
             </Button>
           </div>
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-600">
           <p>
-            Don't have an account?{' '}
+            No account yet?&nbsp;
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Sign up
             </Link>
