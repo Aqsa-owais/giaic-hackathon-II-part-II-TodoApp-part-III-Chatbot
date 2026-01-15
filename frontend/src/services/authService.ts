@@ -8,6 +8,8 @@ class AuthService {
    */
   async register(userData: { email: string; password: string }): Promise<{ user: User; token: string }> {
     try {
+      console.log('Attempting registration with API URL:', process.env.NEXT_PUBLIC_API_URL);
+
       // For registration, we'll make a direct API call to our backend
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
         method: 'POST',
@@ -16,6 +18,8 @@ class AuthService {
         },
         body: JSON.stringify(userData),
       });
+
+      console.log('Registration response status:', response.status);
 
       if (!response.ok) {
         // Check if response has JSON content
@@ -35,12 +39,20 @@ class AuthService {
           errorMessage = response.statusText || errorMessage;
         }
 
+        console.error('Registration error:', errorMessage);
         throw new Error(errorMessage);
       }
 
-      // After successful registration, trigger login to get token
+      console.log('Registration successful, attempting login...');
+
+      // After successful registration, try to log in to get the token
+      // This is standard behavior to automatically log in a newly registered user
       return await this.login(userData);
     } catch (error: any) {
+      console.error('Full registration error:', error);
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+      }
       throw new Error(error.message || 'Registration failed');
     }
   }
@@ -50,6 +62,8 @@ class AuthService {
    */
   async login(credentials: { email: string; password: string }): Promise<{ user: User; token: string }> {
     try {
+      console.log('Attempting login with API URL:', process.env.NEXT_PUBLIC_API_URL);
+
       // Make direct API call to backend for login
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
         method: 'POST',
@@ -58,6 +72,8 @@ class AuthService {
         },
         body: JSON.stringify(credentials),
       });
+
+      console.log('Login response status:', response.status);
 
       if (!response.ok) {
         // Check if response has JSON content
@@ -77,6 +93,7 @@ class AuthService {
           errorMessage = response.statusText || errorMessage;
         }
 
+        console.error('Login error:', errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -84,6 +101,7 @@ class AuthService {
       try {
         data = await response.json();
       } catch (jsonError) {
+        console.error('Error parsing login response:', jsonError);
         throw new Error('Invalid response format from server');
       }
 
@@ -114,6 +132,10 @@ class AuthService {
         token: token
       };
     } catch (error: any) {
+      console.error('Full login error:', error);
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+      }
       throw new Error(error.message || 'Login failed');
     }
   }
