@@ -1,0 +1,11 @@
+# MCP Server Dependencies
+mcp>=1.0.0
+sqlmodel>=0.0.26
+asyncpg>=0.31.0
+pytest>=8.0.0
+hypothesis>=6.0.0
+
+# Additional dependencies for development
+pytest-asyncio>=0.24.0
+python-dotenv>=1.0.0
+pydantic>=2.12.0

@@ -59,9 +59,36 @@ uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 
 - Health check: `GET /health`
 - Task operations: `GET/POST/PUT/DELETE/PATCH /api/{user_id}/tasks/*` (require authentication)
+- Chat API: `POST /api/v1/users/{user_id}/chat` (require authentication)
 
 ## Environment Variables
 
 - `DATABASE_URL`: PostgreSQL connection string
 - `BETTER_AUTH_SECRET`: JWT signing secret (min 32 chars)
 - `FRONTEND_URL`: Allowed origin for CORS
+- `OPENAI_API_KEY`: OpenAI API key for AI agent functionality
+- `OPENAI_MODEL`: OpenAI model to use (default: gpt-4o-mini)
+- `MCP_TOOLS_BASE_URL`: Base URL for MCP tools (default: http://localhost:8000)
+- `MCP_TOOLS_TIMEOUT`: Timeout for MCP tool calls in seconds (default: 30)
+
+## AI Agent & Chat API
+
+The AI Agent & Chat API provides a natural language interface for managing todo tasks. Users can interact with the AI assistant using conversational language to add, list, update, complete, and delete tasks.
+
+### Natural Language Commands
+
+The AI agent understands various task management commands:
+
+- **Adding Tasks**: "Add a task to buy groceries", "Create a task to call John"
+- **Listing Tasks**: "Show my tasks", "What tasks do I have?"
+- **Updating Tasks**: "Update task 1 to 'Buy organic groceries'"
+- **Completing Tasks**: "Mark task 1 as complete", "Finish the grocery task"
+- **Deleting Tasks**: "Delete task 1", "Remove the grocery task"
+
+### Architecture
+
+- **Stateless Design**: All conversation state is stored in the database, not in memory
+- **Separation of Concerns**: AI agent handles reasoning, MCP tools handle data operations
+- **User Isolation**: Users can only access their own conversations and tasks
+- **Rate Limiting**: Prevents abuse with configurable limits (default: 10 requests per minute per user)
+- **Monitoring**: Built-in metrics collection for performance tracking

@@ -20,10 +20,23 @@ class Settings(BaseSettings):
     # CORS settings - Allow multiple origins from environment variable
     allowed_origins_raw: str = Field(default="http://localhost:3000,http://localhost:3001")
 
+    # OpenAI settings for AI Agent
+    openai_api_key: str = Field(default=...)
+    openai_model: str = Field(default="gpt-4o-mini")
+
+    # MCP Tools settings
+    mcp_tools_base_url: str = Field(default="http://localhost:8000")  # Default to local backend
+    mcp_tools_timeout: int = Field(default=30)  # Timeout in seconds
+
+    # Additional settings that may be in .env
+    next_public_api_url: str = Field(default="http://localhost:8000")
+    gemini_api_key: str = Field(default="")
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
-        "case_sensitive": False
+        "case_sensitive": False,
+        "extra": "ignore"  # Ignore extra fields in .env that are not defined
     }
 
     def __init__(self, **data):
@@ -56,3 +69,6 @@ def validate_settings():
 
     if len(settings.better_auth_secret) < 32:
         raise ValueError("BETTER_AUTH_SECRET must be at least 32 characters long")
+
+    if not settings.openai_api_key:
+        raise ValueError("OPENAI_API_KEY environment variable is not set")

@@ -14,6 +14,8 @@ sys.path.append(str(Path(__file__).parent.parent / "src"))
 from src.models.base import SQLModel  # Import your models here
 from src.models.user import User
 from src.models.todo_task import TodoTask
+from src.models.conversation import Conversation
+from src.models.message import Message
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

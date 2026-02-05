@@ -5,18 +5,76 @@ from src.models.user import User, UserCreate
 from src.middleware.jwt_auth_middleware import jwt_auth
 
 
-# Initialize password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Initialize password hashing context with explicit bcrypt configuration
+pwd_context = CryptContext(
+    schemes=["bcrypt"], 
+    deprecated="auto",
+    bcrypt__rounds=12,  # Explicit rounds configuration
+    bcrypt__ident="2b"  # Use 2b variant which is more standard
+)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a hashed password"""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Bcrypt has a 72-byte limit, so truncate if necessary during verification too
+        password_bytes = plain_password.encode('utf-8')
+        if len(password_bytes) > 72:
+            # Truncate at byte level and decode back to string
+            truncated_bytes = password_bytes[:72]
+            # Find the last valid UTF-8 character boundary to avoid corruption
+            while len(truncated_bytes) > 0:
+                try:
+                    plain_password = truncated_bytes.decode('utf-8')
+                    break
+                except UnicodeDecodeError:
+                    # Remove the last byte and try again
+                    truncated_bytes = truncated_bytes[:-1]
+            else:
+                # Fallback if we can't decode anything
+                plain_password = plain_password[:50]  # Safe fallback
+        
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception as e:
+        # If bcrypt still fails, try with a shorter password
+        if "72 bytes" in str(e):
+            # Force truncate to 50 characters as a safe fallback
+            safe_password = plain_password[:50]
+            return pwd_context.verify(safe_password, hashed_password)
+        else:
+            raise e
 
 
 def get_password_hash(password: str) -> str:
     """Hash a plain password"""
-    return pwd_context.hash(password)
+    try:
+        # Bcrypt has a 72-byte limit, so truncate if necessary
+        # Encode to bytes first to get accurate byte count
+        password_bytes = password.encode('utf-8')
+        if len(password_bytes) > 72:
+            # Truncate at byte level and decode back to string
+            truncated_bytes = password_bytes[:72]
+            # Find the last valid UTF-8 character boundary to avoid corruption
+            while len(truncated_bytes) > 0:
+                try:
+                    password = truncated_bytes.decode('utf-8')
+                    break
+                except UnicodeDecodeError:
+                    # Remove the last byte and try again
+                    truncated_bytes = truncated_bytes[:-1]
+            else:
+                # Fallback if we can't decode anything
+                password = password[:50]  # Safe fallback
+        
+        return pwd_context.hash(password)
+    except Exception as e:
+        # If bcrypt still fails, try with a shorter password
+        if "72 bytes" in str(e):
+            # Force truncate to 50 characters as a safe fallback
+            safe_password = password[:50]
+            return pwd_context.hash(safe_password)
+        else:
+            raise e
 
 
 def get_user_by_email(email: str, session: Session) -> Optional[User]:
@@ -63,8 +121,14 @@ def validate_password_strength(password: str) -> bool:
     """
     Validate password strength based on security requirements
     Requirements: At least 8 characters, one uppercase, one lowercase, one digit
+    Also check bcrypt 72-byte limit
     """
     if len(password) < 8:
+        return False
+
+    # Check bcrypt 72-byte limit
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
         return False
 
     has_upper = any(c.isupper() for c in password)

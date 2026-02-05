@@ -46,6 +46,13 @@ export default function Register() {
       return false;
     }
 
+    // Check bcrypt 72-byte limit
+    const passwordBytes = new TextEncoder().encode(formData.password).length;
+    if (passwordBytes > 72) {
+      setError('Password is too long. Please use a shorter password (maximum 72 bytes)');
+      return false;
+    }
+
     // Check for password complexity: at least one uppercase, lowercase, and digit
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       setError('Password must contain at least one uppercase letter, one lowercase letter, and one digit');
@@ -129,7 +136,7 @@ export default function Register() {
               placeholder="••••••••"
             />
             <p className="mt-2 text-xs text-gray-500">
-              Password must be at least 8 characters and include uppercase, lowercase, and number.
+              Password must be at least 8 characters, include uppercase, lowercase, and number. Maximum 72 bytes.
             </p>
           </div>
 

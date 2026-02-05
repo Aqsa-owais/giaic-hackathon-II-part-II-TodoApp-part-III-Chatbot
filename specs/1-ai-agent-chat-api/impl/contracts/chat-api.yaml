@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: AI Agent Chat API
+  description: API for interacting with the AI agent to manage todos through natural language
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+paths:
+  /api/v1/users/{user_id}/chat:
+    post:
+      summary: Process a chat message and return AI response
+      description: Accepts a user message and processes it through the AI agent, which may invoke MCP tools to manage todos.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the authenticated user
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful response from the AI agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - user does not have access to this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+      tags:
+        - Chat
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: The user's message to the AI agent
+          example: "Add a task to buy groceries"
+        conversation_id:
+          type: string
+          format: uuid
+          description: Optional ID of an existing conversation. If not provided, a new conversation is created.
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        metadata:
+          type: object
+          description: Optional additional context for the request
+          additionalProperties: true
+          example:
+            timezone: "UTC"
+            preferred_language: "en"
+
+    ChatResponse:
+      type: object
+      required:
+        - conversation_id
+        - response
+        - status
+        - timestamp
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          description: The ID of the conversation
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        response:
+          type: string
+          description: The AI agent's response to the user
+          example: "I've added the task 'buy groceries' for you."
+        status:
+          type: string
+          enum: [success, partial_success, error]
+          description: The status of processing the request
+          example: "success"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the response was generated
+          example: "2026-01-20T10:00:00Z"
+        actions_taken:
+          type: array
+          description: List of actions performed by the AI agent
+          items:
+            $ref: '#/components/schemas/ActionTaken'
+
+    ActionTaken:
+      type: object
+      properties:
+        tool:
+          type: string
+          description: The name of the MCP tool that was invoked
+          example: "add_task"
+        result:
+          type: object
+          description: The result of the tool invocation
+          additionalProperties: true
+          example:
+            task_id: "123e4567-e89b-12d3-a456-426614174001"
+            description: "buy groceries"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "AUTHENTICATION_FAILED"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid or expired JWT token"
+        details:
+          type: object
+          description: Additional error details (optional)
+          additionalProperties: true
+tags:
+  - name: Chat
+    description: Chat with the AI agent to manage todos

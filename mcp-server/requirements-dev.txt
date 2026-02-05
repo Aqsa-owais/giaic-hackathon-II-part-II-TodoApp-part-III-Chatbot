@@ -1,0 +1,15 @@
+# Development dependencies
+-r requirements.txt
+
+# Testing
+pytest-cov>=5.0.0
+pytest-mock>=3.12.0
+
+# Code quality
+black>=24.0.0
+isort>=5.13.0
+flake8>=7.0.0
+mypy>=1.8.0
+
+# Development tools
+pre-commit>=3.6.0

@@ -31,7 +31,7 @@ def register(user: UserCreate, session: Session = Depends(get_session)):
     if not validate_password_strength(user.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit"
+            detail="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and be no more than 72 bytes"
         )
 
     try:
