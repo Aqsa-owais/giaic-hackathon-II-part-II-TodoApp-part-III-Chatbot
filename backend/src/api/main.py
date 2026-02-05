@@ -29,9 +29,11 @@ def create_app() -> FastAPI:
     from .task_router import task_router
     from .auth_router import auth_router
     from .chat_router import router as chat_router
+    from .health_router import router as health_router
     app.include_router(task_router, prefix="/api", tags=["tasks"])
     app.include_router(auth_router, prefix="/api", tags=["auth"])
     app.include_router(chat_router, prefix="/api", tags=["chat"])
+    app.include_router(health_router, prefix="/api", tags=["health"])
 
     # Health check endpoint
     @app.get("/health")

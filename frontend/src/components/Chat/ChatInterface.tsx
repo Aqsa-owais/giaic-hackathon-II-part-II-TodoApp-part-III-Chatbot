@@ -53,6 +53,16 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const token = localStorage.getItem('access_token');
 
+      console.log('API Client Base URL:', apiUrl);
+      console.log('Sending message to agent...');
+
+      // Create abort controller for timeout (50 seconds to match backend)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.log('Request timeout after 50s - aborting...');
+        controller.abort();
+      }, 50000); // 50 second timeout
+
       const response = await fetch(`${apiUrl}/api/v1/users/${userId}/chat`, {
         method: 'POST',
         headers: {
@@ -62,8 +72,12 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
         body: JSON.stringify({
           message: inputMessage,
           conversation_id: conversationId
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
+      console.log('Response received:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -87,10 +101,20 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
+      let errorMsg = 'Sorry, I encountered an error processing your request. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMsg = 'Request timed out. The AI is taking too long to respond. Please try again with a simpler request.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMsg = 'Cannot connect to the server. Please make sure the backend is running.';
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        content: errorMsg,
         timestamp: Date.now()
       };
       setMessages(prev => [...prev, errorMessage]);
